@@ -27,9 +27,12 @@ const addBookmark = async (req, res) => {
       name: req.body.name,
       criteria: req.body.criteria
     });
-    newBookmark.latestItem = await Scraper.getLatestItem(newBookmark.criteria);
     const bookmark = await newBookmark.save();
     res.json(bookmark);
+    Scraper.getLatestItem(newBookmark.criteria).then((latestItem) => {
+      bookmark.latestItem = latestItem;
+      bookmark.save();
+    });
   } catch (err) {
     console.log("msg", err.message);
     console.log("line number", err.line);
