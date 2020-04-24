@@ -13,7 +13,6 @@ describe("bookmark route test", () => {
     it("should work", async () => {
       const response = await request.get("/api/bookmarks");
       expect(response.status).toEqual(200);
-      expect(response.body).toHaveLength(0);
     });
   });
   describe("POST => /api/bookmark", () => {
@@ -34,6 +33,14 @@ describe("bookmark route test", () => {
     });
   });
   describe("DELETE => /api/bookmark", () => {
+    it("should delete bookmark ", async () => {
+      const getResponse = await request.get("/api/bookmarks");
+      if (getResponse.length > 0) {
+        const bookmarkId = getResponse[0]._id;
+        const response = await request.delete(`/api/bookmarks/${bookmarkId}`);
+        expect(response.status).toBe(204);
+      }
+    });
     it("should not work for non-existent bookmark", async () => {
       const fakeId = randomId();
       const response = await request.delete(`/api/${fakeId}`);

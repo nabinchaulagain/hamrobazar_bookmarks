@@ -1,7 +1,7 @@
 console.time("cron job");
 const { Notification, Bookmark } = require("./models");
 const mongoose = require("mongoose");
-const { getItems } = require("./scraper");
+const Scraper = require("./scraper");
 require("dotenv").config();
 
 mongoose.connect(
@@ -13,7 +13,7 @@ mongoose.connect(
   async () => {
     const bookmarks = await Bookmark.find({}, { latestItem: 1, criteria: 1 });
     for (const bookmark of bookmarks) {
-      const items = await getItems(bookmark.criteria);
+      const items = await Scraper.getItems(bookmark.criteria);
       try {
         const newItems = getNewItems(bookmark.latestItem, items);
         if (newItems.length !== 0) {

@@ -1,5 +1,5 @@
 const { Bookmark, Notification } = require("./models");
-const { getLatestItem } = require("./scraper");
+const Scraper = require("./scraper");
 // GET => /api/bookmarks
 const getBookmarks = async (req, res) => {
   const bookmarks = await Bookmark.find().sort("-bookmarkedAt");
@@ -27,7 +27,7 @@ const addBookmark = async (req, res) => {
       name: req.body.name,
       criteria: req.body.criteria
     });
-    newBookmark.latestItem = await getLatestItem(newBookmark.criteria);
+    newBookmark.latestItem = await Scraper.getLatestItem(newBookmark.criteria);
     const bookmark = await newBookmark.save();
     res.json(bookmark);
   } catch (err) {
