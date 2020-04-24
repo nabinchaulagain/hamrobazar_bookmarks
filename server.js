@@ -1,6 +1,5 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
-require("./models");
 const app = require("./app");
 
 mongoose.connect(
