@@ -1,0 +1,21 @@
+{
+  "env": {
+    "commonjs": true,
+    "es6": true,
+    "node": true,
+    "jest": true
+  },
+  "extends": ["eslint:recommended", "prettier", "plugin:node/recommended"],
+  "plugins": ["prettier", "jest"],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
+  "rules": {
+    "no-process-exit": "off",
+    "node/no-unpublished-require": "off"
+  }
+}
