@@ -1,6 +1,5 @@
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
-const { generateUrl } = require("./utils");
 
 const blockedResourceTypes = [
   "image",
@@ -117,5 +116,13 @@ class Scraper {
     return item;
   }
 }
+
+const conditions = { any: "", new: 1, used: 2 };
+const generateUrl = ({ searchWord, condition = "any", minPrice = "", maxPrice = "" }) => {
+  const conditionNum = conditions[condition];
+  return `https://hamrobazaar.com/search.php?do_search=Search&searchword=${searchWord}&e_2=${conditionNum}&e_1_from=${minPrice}&e_1_to=${
+    maxPrice === 0 ? "" : maxPrice
+  }&way=0&order=siteid`;
+};
 
 module.exports = Scraper;

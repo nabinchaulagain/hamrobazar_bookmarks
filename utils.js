@@ -1,11 +1,3 @@
-const conditions = { any: "", new: 1, used: 2 };
-const generateUrl = ({ searchWord, condition = "any", minPrice = "", maxPrice = "" }) => {
-  const conditionNum = conditions[condition];
-  return `https://hamrobazaar.com/search.php?do_search=Search&searchword=${searchWord}&e_2=${conditionNum}&e_1_from=${minPrice}&e_1_to=${
-    maxPrice === 0 ? "" : maxPrice
-  }&way=0&order=siteid`;
-};
-
 const getTimeFrom = (date) => {
   const currentDate = Date.now();
   const givenDate = new Date(date).getTime();
@@ -38,4 +30,18 @@ const getCurrentHour = () => {
   return hour;
 };
 
-module.exports = { generateUrl, getTimeFrom, getCurrentHour };
+const saveLatestItemInBookmark = async (bookmark) => {
+  const Scraper = require("./scraper");
+  if (process.env.NODE_ENV === "production") {
+    Scraper.getLatestItem(bookmark.criteria).then((latestItem) => {
+      bookmark.latestItem = latestItem;
+      bookmark.save();
+    });
+  } else {
+    const latestItem = await Scraper.getLatestItem(bookmark.criteria);
+    bookmark.latestItem = latestItem;
+    await bookmark.save();
+  }
+};
+
+module.exports = { getTimeFrom, getCurrentHour, saveLatestItemInBookmark };

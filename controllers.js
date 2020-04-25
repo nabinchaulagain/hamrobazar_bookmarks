@@ -1,7 +1,7 @@
 const { Bookmark, Notification, User } = require("./models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Scraper = require("./scraper");
+const { saveLatestItemInBookmark } = require("./utils");
 // GET => /api/bookmarks
 const getBookmarks = async (req, res) => {
   const bookmarks = await Bookmark.find({ userId: req.user.id }).sort("-bookmarkedAt");
@@ -34,11 +34,8 @@ const addBookmark = async (req, res) => {
       userId: req.user.id
     });
     const bookmark = await newBookmark.save();
+    await saveLatestItemInBookmark(bookmark);
     res.json(bookmark);
-    Scraper.getLatestItem(newBookmark.criteria).then((latestItem) => {
-      bookmark.latestItem = latestItem;
-      bookmark.save();
-    });
   } catch (err) {
     console.log(err);
   }
