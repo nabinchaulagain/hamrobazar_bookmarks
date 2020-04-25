@@ -3,21 +3,26 @@ const supertest = require("supertest");
 const request = supertest(app);
 const { randomStr, randomInt, randomId } = require("./helpers/random");
 const db = require("./helpers/db");
+const getAuthenticatedRequest = require("./helpers/authenticatedRequest");
+let authenticatedRequest;
 
 beforeAll(async () => {
   await db.connect();
 });
 
-describe("bookmark route test", () => {
+describe("When logged in", () => {
+  beforeEach(async () => {
+    authenticatedRequest = await getAuthenticatedRequest(request);
+  });
   describe("GET => /api/bookmarks", () => {
     it("should work", async () => {
-      const response = await request.get("/api/bookmarks");
+      const response = await authenticatedRequest.get("/api/bookmarks");
       expect(response.status).toEqual(200);
     });
   });
   describe("POST => /api/bookmark", () => {
     it("should create bookmark", async () => {
-      const response = await request.post("/api/bookmarks").send({
+      const response = await authenticatedRequest.post("/api/bookmarks").send({
         name: randomStr(randomInt(5, 12)),
         criteria: {
           searchWord: randomStr(randomInt(5, 12))
@@ -26,7 +31,7 @@ describe("bookmark route test", () => {
       expect(response.status).toEqual(200);
     });
     it("shouldn't create bookmark for invalid criteria", async () => {
-      const response = await request.post("/api/bookmarks").send({
+      const response = await authenticatedRequest.post("/api/bookmarks").send({
         name: randomStr(randomInt(5, 12))
       });
       expect(response.status).toEqual(400);
@@ -34,18 +39,36 @@ describe("bookmark route test", () => {
   });
   describe("DELETE => /api/bookmark", () => {
     it("should delete bookmark ", async () => {
-      const getResponse = await request.get("/api/bookmarks");
-      if (getResponse.length > 0) {
-        const bookmarkId = getResponse[0]._id;
-        const response = await request.delete(`/api/bookmarks/${bookmarkId}`);
-        expect(response.status).toBe(204);
-      }
+      const { body } = await authenticatedRequest.post("/api/bookmarks").send({
+        name: randomStr(randomInt(5, 12)),
+        criteria: {
+          searchWord: randomStr(randomInt(5, 12))
+        }
+      });
+      const bookmarkId = body._id;
+      const response = await authenticatedRequest.delete(`/api/bookmarks/${bookmarkId}`);
+      expect(response.status).toBe(204);
     });
     it("should not work for non-existent bookmark", async () => {
       const fakeId = randomId();
-      const response = await request.delete(`/api/${fakeId}`);
+      const response = await authenticatedRequest.delete(`/api/${fakeId}`);
       expect(response.status).toBe(404);
     });
+  });
+});
+
+describe("When not logged in", () => {
+  it("GET => /api/bookmarks is protected", async () => {
+    const response = await request.get("/api/bookmarks");
+    expect(response.status).toEqual(401);
+  });
+  it("POST => /api/bookmarks is protected", async () => {
+    const response = await request.post("/api/bookmarks");
+    expect(response.status).toEqual(401);
+  });
+  it("DELETE => /api/bookmarks is protected", async () => {
+    const response = await request.delete(`/api/bookmarks/${randomId()}`);
+    expect(response.status).toEqual(401);
   });
 });
 

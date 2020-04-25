@@ -8,4 +8,11 @@ const userDecoder = async (req, res, next) => {
   }
   next();
 };
-module.exports = { userDecoder };
+
+const loginRequired = async (req, res, next) => {
+  if (!req.user) {
+    return res.sendStatus(401);
+  }
+  next();
+};
+module.exports = { userDecoder, loginRequired };

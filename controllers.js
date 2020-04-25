@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const Scraper = require("./scraper");
 // GET => /api/bookmarks
 const getBookmarks = async (req, res) => {
-  const bookmarks = await Bookmark.find().sort("-bookmarkedAt");
+  const bookmarks = await Bookmark.find({ userId: req.user.id }).sort("-bookmarkedAt");
   res.json(bookmarks);
 };
 // GET => /api/bookmarks/:bookmarkId
@@ -13,6 +13,9 @@ const getBookmark = async (req, res) => {
   const notifications = await Notification.find({
     bookmark: bookmark.id
   }).sort("-foundAt");
+  if (bookmark.userId.toString() !== req.user.id.toString()) {
+    return res.sendStatus(403);
+  }
   res.json({ ...bookmark.toJSON(), notifications });
 };
 
@@ -27,7 +30,8 @@ const addBookmark = async (req, res) => {
     }
     const newBookmark = new Bookmark({
       name: req.body.name,
-      criteria: req.body.criteria
+      criteria: req.body.criteria,
+      userId: req.user.id
     });
     const bookmark = await newBookmark.save();
     res.json(bookmark);
@@ -36,9 +40,7 @@ const addBookmark = async (req, res) => {
       bookmark.save();
     });
   } catch (err) {
-    console.log("msg", err.message);
-    console.log("line number", err.line);
-    console.log("name", err.name);
+    console.log(err);
   }
 };
 
@@ -50,6 +52,9 @@ const updateBookmark = async (req, res) => {
   const bookmark = await Bookmark.findById(req.params.bookmarkId);
   if (!bookmark) {
     return res.status(400).send("missing");
+  }
+  if (bookmark.userId.toString() !== req.user.id.toString()) {
+    return res.sendStatus(403);
   }
   bookmark.name = req.body.name;
   bookmark.criteria = req.body.criteria;
@@ -65,6 +70,9 @@ const deleteBookmark = async (req, res) => {
   if (!bookmark) {
     return res.sendStatus(404);
   }
+  if (bookmark.userId.toString() !== req.user.id.toString()) {
+    return res.sendStatus(403);
+  }
   await bookmark.remove();
   res.sendStatus(204);
 };
@@ -72,7 +80,8 @@ const deleteBookmark = async (req, res) => {
 // GET => /api/notifications/new
 const getNewNotifications = async (req, res) => {
   const newNotifications = await Notification.find({
-    isSeen: false
+    isSeen: false,
+    userId: req.user.id
   })
     .sort("-foundAt")
     .populate("bookmark", { name: 1, _id: 0 });
@@ -88,6 +97,9 @@ const notificationRecieved = async (req, res) => {
   if (!notification) {
     return res.sendStatus(404);
   }
+  if (notification.userId.toString() !== req.user.id.toString()) {
+    return res.sendStatus(403);
+  }
   notification.isNotified = true;
   notification.save();
   res.sendStatus(204);
@@ -95,7 +107,7 @@ const notificationRecieved = async (req, res) => {
 
 // GET => /api/notifications
 const getNotifications = async (req, res) => {
-  const notifications = await Notification.find().sort("-foundAt");
+  const notifications = await Notification.find({ userId: req.user.id }).sort("-foundAt");
   res.json(notifications);
 };
 
