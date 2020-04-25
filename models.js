@@ -42,7 +42,14 @@ notificationSchema.post("find", (docs, next) => {
   }
 });
 
+const userSchema = new mongoose.Schema({
+  username: String,
+  password: String,
+  joinedAt: { type: Date, default: Date.now, get: (val) => getTimeFrom(val) }
+});
+userSchema.set("toJSON", { getters: true });
+const User = mongoose.model("User", userSchema);
 const Bookmark = mongoose.model("Bookmark", bookmarkSchema);
 const Notification = mongoose.model("Notification", notificationSchema);
 
-module.exports = { Bookmark, Notification };
+module.exports = { Bookmark, Notification, User };
