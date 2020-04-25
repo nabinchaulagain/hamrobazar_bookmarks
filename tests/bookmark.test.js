@@ -1,7 +1,8 @@
 const app = require("../app");
 const supertest = require("supertest");
 const request = supertest(app);
-const { randomStr, randomInt, randomId } = require("./helpers/random");
+const { randomId } = require("./helpers/random");
+const { generateBookmark } = require("./helpers/factory");
 const db = require("./helpers/db");
 const getAuthenticatedRequest = require("./helpers/authenticatedRequest");
 let authenticatedRequest;
@@ -22,29 +23,21 @@ describe("When logged in", () => {
   });
   describe("POST => /api/bookmark", () => {
     it("should create bookmark", async () => {
-      const response = await authenticatedRequest.post("/api/bookmarks").send({
-        name: randomStr(randomInt(5, 12)),
-        criteria: {
-          searchWord: randomStr(randomInt(5, 12))
-        }
-      });
+      const response = await authenticatedRequest
+        .post("/api/bookmarks")
+        .send(generateBookmark());
       expect(response.status).toEqual(200);
     });
     it("shouldn't create bookmark for invalid criteria", async () => {
-      const response = await authenticatedRequest.post("/api/bookmarks").send({
-        name: randomStr(randomInt(5, 12))
-      });
+      const response = await authenticatedRequest.post("/api/bookmarks");
       expect(response.status).toEqual(400);
     });
   });
   describe("DELETE => /api/bookmark", () => {
     it("should delete bookmark ", async () => {
-      const { body } = await authenticatedRequest.post("/api/bookmarks").send({
-        name: randomStr(randomInt(5, 12)),
-        criteria: {
-          searchWord: randomStr(randomInt(5, 12))
-        }
-      });
+      const { body } = await authenticatedRequest
+        .post("/api/bookmarks")
+        .send(generateBookmark());
       const bookmarkId = body._id;
       const response = await authenticatedRequest.delete(`/api/bookmarks/${bookmarkId}`);
       expect(response.status).toBe(204);

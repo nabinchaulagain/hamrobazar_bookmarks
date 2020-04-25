@@ -2,7 +2,7 @@ const app = require("../app");
 const supertest = require("supertest");
 const request = supertest(app);
 const db = require("./helpers/db");
-const { randomStr } = require("./helpers/random");
+const { generateUserCredentials } = require("./helpers/factory");
 
 beforeAll(async () => {
   await db.connect();
@@ -11,12 +11,9 @@ beforeAll(async () => {
 describe("Auth routes work for", () => {
   describe("POST => /api/auth/register", () => {
     it("should generate token", async () => {
-      const username = randomStr(6);
-      const password = randomStr(9);
-      const response = await request.post("/api/auth/register").send({
-        username,
-        password
-      });
+      const response = await request
+        .post("/api/auth/register")
+        .send(generateUserCredentials());
       expect(response.status).toEqual(200);
       expect(response.body.token).toMatch(
         /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/
@@ -30,19 +27,13 @@ describe("Auth routes work for", () => {
 
   describe("POST => /api/auth/login", () => {
     it("shouldn't log user in with invalid credentials", async () => {
-      const username = randomStr(6);
-      const password = randomStr(9);
-      const response = await request.post("/api/auth/login").send({
-        username,
-        password
-      });
+      const response = await request
+        .post("/api/auth/login")
+        .send(generateUserCredentials());
       expect(response.status).toEqual(404);
     });
     it("should log user in", async () => {
-      const credentials = {
-        username: randomStr(6),
-        password: randomStr(9)
-      };
+      const credentials = generateUserCredentials();
       await request.post("/api/auth/register").send(credentials);
       const response = await request.post("/api/auth/login").send(credentials);
       expect(response.status).toEqual(200);
@@ -52,10 +43,7 @@ describe("Auth routes work for", () => {
     });
   });
   it("GET => /api/auth/user should give logged in user", async () => {
-    const credentials = {
-      username: randomStr(6),
-      password: randomStr(9)
-    };
+    const credentials = generateUserCredentials();
     const registerResponse = await request.post("/api/auth/register").send(credentials);
     const token = registerResponse.body.token;
     const response = await request
