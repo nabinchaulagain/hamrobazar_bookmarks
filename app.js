@@ -20,7 +20,9 @@ app.get("/api/notifications", loginRequired, Controller.getNotifications);
 app.post("/api/auth/register", Controller.register);
 app.post("/api/auth/login", Controller.login);
 app.get("/api/auth/user", Controller.getUser);
-
+app.get("/", (req, res) => {
+  res.json(req.user);
+});
 app.use((req, res) => {
   res.sendStatus(404);
 });
