@@ -67,6 +67,7 @@ class Page {
       timeout: 15000,
       waitUntil: "networkidle2"
     });
+    await page.waitFor(8000);
     let html = await page.content();
     await page.close();
     await browser.close();
