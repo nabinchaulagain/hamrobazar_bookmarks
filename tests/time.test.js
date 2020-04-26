@@ -1,6 +1,6 @@
-const { getTimeFrom } = require("../utils");
+const { getTimeFrom } = require("../utils/time");
 const { randomInt } = require("./helpers/random");
-describe("time should work", () => {
+describe("getTimeFrom() should work", () => {
   it("for few seconds", () => {
     const date = Date.now() - randomInt(1, 30) * 1000;
     expect(getTimeFrom(date)).toEqual("a few seconds ago");

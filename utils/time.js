@@ -30,18 +30,4 @@ const getCurrentHour = () => {
   return hour;
 };
 
-const saveLatestItemInBookmark = async (bookmark) => {
-  const Scraper = require("./scraper");
-  if (process.env.NODE_ENV === "production") {
-    Scraper.getLatestItem(bookmark.criteria).then((latestItem) => {
-      bookmark.latestItem = latestItem;
-      bookmark.save();
-    });
-  } else {
-    const latestItem = await Scraper.getLatestItem(bookmark.criteria);
-    bookmark.latestItem = latestItem;
-    await bookmark.save();
-  }
-};
-
-module.exports = { getTimeFrom, getCurrentHour, saveLatestItemInBookmark };
+module.exports = { getCurrentHour, getTimeFrom };

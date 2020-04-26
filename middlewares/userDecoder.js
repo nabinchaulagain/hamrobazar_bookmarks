@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User } = require("./models");
+const User = require("../models/User");
 const userDecoder = async (req, res, next) => {
   const authorizationHeader = req.headers["authorization"];
   if (authorizationHeader) {
@@ -17,11 +17,4 @@ const userDecoder = async (req, res, next) => {
   }
   next();
 };
-
-const loginRequired = async (req, res, next) => {
-  if (!req.user) {
-    return res.sendStatus(401);
-  }
-  next();
-};
-module.exports = { userDecoder, loginRequired };
+module.exports = userDecoder;

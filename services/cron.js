@@ -1,6 +1,7 @@
 console.time("cron job");
-const { Notification, Bookmark } = require("./models");
 const mongoose = require("mongoose");
+const Notification = require("../models/Notification");
+const Bookmark = require("../models/Bookmark");
 const Scraper = require("./scraper");
 require("dotenv").config();
 
