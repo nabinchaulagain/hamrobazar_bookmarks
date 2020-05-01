@@ -9,7 +9,7 @@ const register = async (req, res) => {
   }
   const userWithSameName = await User.findOne({ username });
   if (userWithSameName) {
-    return res.status(400).send("Username already exists");
+    return res.status(400).json({ username: "Username already exists" });
   }
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
@@ -31,11 +31,11 @@ const login = async (req, res) => {
   }
   const user = await User.findOne({ username });
   if (!user) {
-    return res.sendStatus(404);
+    return res.status(404).json({ username: "Username doesn't exist" });
   }
   const isPasswordCorrect = await bcrypt.compare(password, await user.password);
   if (!isPasswordCorrect) {
-    return res.sendStatus(401);
+    return res.status(401).json({ password: "Password doesn't match" });
   }
   const token = jwt.sign(
     {
@@ -48,8 +48,10 @@ const login = async (req, res) => {
 
 // GET => /api/auth/user
 const getUser = async (req, res) => {
-  const user = await User.findById(req.user.id);
-  res.json(user);
+  if (req.user) {
+    return res.json({ isLoggedIn: true, user: req.user });
+  }
+  res.json({ isLoggedIn: false });
 };
 
 module.exports = { register, login, getUser };
