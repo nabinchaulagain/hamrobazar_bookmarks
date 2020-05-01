@@ -49,7 +49,7 @@ describe("Auth routes work for", () => {
     const response = await request
       .get("/api/auth/user")
       .set("Authorization", `Bearer ${token}`);
-    const recievedUser = response.body.username;
+    const recievedUser = response.body.user.username;
     expect(recievedUser).toEqual(credentials.username);
   });
 });
