@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const Notification = require("../models/Notification");
 const Bookmark = require("../models/Bookmark");
 const Scraper = require("./scraper");
+const { clearHash } = require("./cache");
 require("dotenv").config();
 
 mongoose.connect(
@@ -12,15 +13,16 @@ mongoose.connect(
     useUnifiedTopology: true
   },
   async () => {
-    const bookmarks = await Bookmark.find({}, { latestItem: 1, criteria: 1 });
+    const bookmarks = await Bookmark.find({}, { latestItem: 1, userId: 1, criteria: 1 });
     for (const bookmark of bookmarks) {
       const items = await Scraper.getItems(bookmark.criteria);
       try {
         const newItems = getNewItems(bookmark.latestItem, items);
         if (newItems.length !== 0) {
-          createNotifications(bookmark._id, newItems);
+          createNotifications(bookmark, newItems);
           bookmark.latestItem = items[0];
           bookmark.save();
+          clearHash(bookmark.userId);
         }
         await waitFor30Seconds();
       } catch (err) {
@@ -32,11 +34,12 @@ mongoose.connect(
   }
 );
 
-function createNotifications(bookmarkId, newItems) {
+function createNotifications(bookmark, newItems) {
   for (const item of newItems) {
     Notification.create({
       item,
-      bookmark: bookmarkId
+      bookmark: bookmark._id,
+      userId: bookmark.userId
     });
   }
 }

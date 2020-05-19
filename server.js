@@ -1,5 +1,6 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
+require("./services/cache");
 const app = require("./app");
 
 mongoose.connect(

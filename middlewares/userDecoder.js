@@ -6,7 +6,7 @@ const userDecoder = async (req, res, next) => {
     try {
       const jwtToken = authorizationHeader.split(" ")[1];
       const decodedUser = jwt.decode(jwtToken);
-      const user = await User.findById(decodedUser.id);
+      const user = await User.findById(decodedUser.id).cache();
       if (!user) {
         return res.sendStatus(401);
       }

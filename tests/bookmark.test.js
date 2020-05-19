@@ -4,6 +4,7 @@ const request = supertest(app);
 const { randomId } = require("./helpers/random");
 const { generateBookmark } = require("./helpers/factory");
 const db = require("./helpers/db");
+const { flushCache, disconnectToRedis } = require("../services/cache");
 const getAuthenticatedRequest = require("./helpers/authenticatedRequest");
 let authenticatedRequest;
 
@@ -67,4 +68,6 @@ describe("When not logged in", () => {
 
 afterAll(async () => {
   await db.disconnect();
+  await flushCache();
+  await disconnectToRedis();
 });

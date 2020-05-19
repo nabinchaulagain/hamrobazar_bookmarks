@@ -1,17 +1,14 @@
 const mongoose = require("mongoose");
 const itemSchema = require("./Item.schema");
-const { getTimeFrom } = require("../utils/time");
 
 const notificationSchema = new mongoose.Schema({
   bookmark: { type: mongoose.Types.ObjectId, ref: "Bookmark" },
   item: { type: itemSchema },
-  foundAt: { type: Date, default: Date.now, get: (val) => getTimeFrom(val) },
+  foundAt: { type: Date, default: Date.now },
   userId: mongoose.Types.ObjectId,
   isNotified: { type: Boolean, default: false },
   isSeen: { type: Boolean, default: false }
 });
-
-notificationSchema.set("toJSON", { getters: true });
 
 notificationSchema.post("find", (docs, next) => {
   next();

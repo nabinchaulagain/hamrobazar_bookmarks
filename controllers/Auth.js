@@ -2,12 +2,12 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 //POST => /api/auth/register
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.sendStatus(400);
   }
-  const userWithSameName = await User.findOne({ username });
+  const userWithSameName = await User.findOne({ username }).cache();
   if (userWithSameName) {
     return res.status(400).json({ username: "Username already exists" });
   }
@@ -22,6 +22,7 @@ const register = async (req, res) => {
     process.env.JWT_SECRET
   );
   res.json({ token });
+  next();
 };
 //POST => /api/auth/login
 const login = async (req, res) => {
@@ -29,11 +30,11 @@ const login = async (req, res) => {
   if (!username || !password) {
     return res.sendStatus(400);
   }
-  const user = await User.findOne({ username });
+  const user = await User.findOne({ username }).cache();
   if (!user) {
     return res.status(404).json({ username: "Username doesn't exist" });
   }
-  const isPasswordCorrect = await bcrypt.compare(password, await user.password);
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
   if (!isPasswordCorrect) {
     return res.status(401).json({ password: "Password doesn't match" });
   }

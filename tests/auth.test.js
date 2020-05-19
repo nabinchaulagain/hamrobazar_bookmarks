@@ -3,6 +3,7 @@ const supertest = require("supertest");
 const request = supertest(app);
 const db = require("./helpers/db");
 const { generateUserCredentials } = require("./helpers/factory");
+const { flushCache, disconnectToRedis } = require("../services/cache");
 
 beforeAll(async () => {
   await db.connect();
@@ -56,4 +57,6 @@ describe("Auth routes work for", () => {
 
 afterAll(async () => {
   await db.disconnect();
+  await flushCache();
+  await disconnectToRedis();
 });
