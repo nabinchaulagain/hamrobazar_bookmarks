@@ -1,4 +1,6 @@
 const User = require("../models/User");
+const Bookmark = require("../models/Bookmark");
+const Notification = require("../models/Notification");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 //POST => /api/auth/register
@@ -49,10 +51,16 @@ const login = async (req, res) => {
 
 // GET => /api/auth/user
 const getUser = async (req, res) => {
-  if (req.user) {
-    return res.json({ isLoggedIn: true, user: req.user });
+  if (!req.user) {
+    return res.json({ isLoggedIn: false });
   }
-  res.json({ isLoggedIn: false });
+  const response = {
+    isLoggedIn: true,
+    user: req.user,
+    bookmarksCount: await Bookmark.countDocuments(req.user.id).cache(req.user.id),
+    notificationsCount: await Notification.countDocuments(req.user.id).cache(req.user.id)
+  };
+  res.json(response);
 };
 
 module.exports = { register, login, getUser };

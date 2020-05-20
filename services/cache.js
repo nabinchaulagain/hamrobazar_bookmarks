@@ -50,7 +50,8 @@ mongoose.Query.prototype.exec = async function () {
   }
   const cacheKey = JSON.stringify({
     collection: this.mongooseCollection.name,
-    ...this.getQuery()
+    ...this.getQuery(),
+    operation: this.op
   });
   const cachedVal = await client.hget(this.hashKey, cacheKey);
   if (cachedVal) {
