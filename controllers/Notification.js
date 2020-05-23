@@ -29,9 +29,7 @@ const notificationRecieved = async (req, res) => {
 
 // GET => /api/notifications
 const getNotifications = async (req, res) => {
-  const notifications = await Notification.find({ userId: req.user.id })
-    .cache(req.user.id)
-    .sort("-foundAt");
+  const notifications = await Notification.find({ userId: req.user.id }).sort("-foundAt");
   res.json(notifications);
 };
 

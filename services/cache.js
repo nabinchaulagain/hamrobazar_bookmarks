@@ -56,8 +56,8 @@ mongoose.Query.prototype.exec = async function () {
   const cachedVal = await client.hget(this.hashKey, cacheKey);
   if (cachedVal) {
     const queryRes = JSON.parse(cachedVal);
-    if (queryRes === null) {
-      return null;
+    if (queryRes === null || typeof queryRes !== "object") {
+      return queryRes;
     }
     return Array.isArray(queryRes)
       ? queryRes.map((doc) => this.model.hydrate(doc))

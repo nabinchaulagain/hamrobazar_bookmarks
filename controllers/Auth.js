@@ -57,8 +57,12 @@ const getUser = async (req, res) => {
   const response = {
     isLoggedIn: true,
     user: req.user,
-    bookmarksCount: await Bookmark.countDocuments(req.user.id).cache(req.user.id),
-    notificationsCount: await Notification.countDocuments(req.user.id).cache(req.user.id)
+    bookmarksCount: await Bookmark.countDocuments({ userId: req.user.id }).cache(
+      req.user.id
+    ),
+    notificationsCount: await Notification.countDocuments({ userId: req.user.id }).cache(
+      req.user.id
+    )
   };
   res.json(response);
 };
