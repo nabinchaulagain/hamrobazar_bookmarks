@@ -14,9 +14,7 @@ const getBookmark = async (req, res) => {
   const bookmark = await Bookmark.findById(req.params.bookmarkId).cache(req.user.id);
   const notifications = await Notification.find({
     bookmark: bookmark.id
-  })
-    .cache(req.user.id)
-    .sort("-foundAt");
+  }).sort("-foundAt");
   if (bookmark.userId.toString() !== req.user.id.toString()) {
     return res.sendStatus(403);
   }

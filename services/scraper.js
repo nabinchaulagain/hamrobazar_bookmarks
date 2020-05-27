@@ -105,7 +105,7 @@ class Scraper {
 
   static extractItemFromRow(adRow) {
     const item = {};
-    item.name = adRow.find("a b").text();
+    item.name = adRow.find("a b>b").text();
     item.price = adRow.find("td[width='100'] b").text();
     item.link = "https://hamrobazaar.com/" + adRow.find("a").attr("href");
     return item;
